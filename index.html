@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopee Affiliate Tools</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --orange:#EE4D2D;
+    --orange-dark:#C73B1F;
+    --orange-bg:rgba(238,77,45,0.1);
+    --bg:#fff;
+    --bg-secondary:#f5f5f5;
+    --bg-card:#fff;
+    --text:#1a1a1a;
+    --text-secondary:#666;
+    --text-tertiary:#999;
+    --border:rgba(0,0,0,0.12);
+    --border-hover:rgba(0,0,0,0.25);
+    --radius:8px;
+    --radius-lg:12px;
+    --shadow:0 2px 12px rgba(0,0,0,0.08);
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#111;
+      --bg-secondary:#1e1e1e;
+      --bg-card:#1a1a1a;
+      --text:#f0f0f0;
+      --text-secondary:#aaa;
+      --text-tertiary:#666;
+      --border:rgba(255,255,255,0.12);
+      --border-hover:rgba(255,255,255,0.25);
+      --shadow:0 2px 12px rgba(0,0,0,0.4);
+    }
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  .container{max-width:740px;margin:0 auto;padding:2rem 1.25rem}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  header .logo{background:var(--orange);border-radius:10px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  h1{font-size:24px;font-weight:600}
+  .subtitle{font-size:14px;color:var(--text-secondary);margin-bottom:2rem;padding-left:52px}
+  .tabs{display:flex;border-bottom:1.5px solid var(--border);margin-bottom:1.5rem;gap:2px;overflow-x:auto}
+  .tab{display:flex;align-items:center;gap:6px;padding:9px 16px;border:none;cursor:pointer;font-size:13px;font-weight:400;background:transparent;color:var(--text-secondary);border-bottom:2.5px solid transparent;margin-bottom:-1.5px;white-space:nowrap;transition:color .15s}
+  .tab.active{color:var(--orange);border-bottom-color:var(--orange);font-weight:500}
+  .tab-content{display:none}
+  .tab-content.active{display:flex;flex-direction:column;gap:16px}
+  input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:14px;font-family:inherit;transition:border-color .15s,box-shadow .15s;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(238,77,45,0.15)}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+  .card-highlight{border-color:var(--orange)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:inherit}
+  .btn:hover{border-color:var(--border-hover)}
+  .btn-primary{background:var(--orange);color:white;border-color:var(--orange);width:100%}
+  .btn-primary:hover{background:var(--orange-dark);border-color:var(--orange-dark)}
+  .btn-primary:disabled{background:var(--bg-secondary);color:var(--text-tertiary);border-color:var(--border);cursor:not-allowed}
+  .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .metric{background:var(--bg-secondary);border-radius:var(--radius);padding:1rem}
+  .metric label{font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px}
+  .metric .val{font-size:17px;font-weight:600;color:var(--text)}
+  .metric.highlight{background:var(--orange);text-align:center}
+  .metric.highlight label{color:rgba(255,255,255,0.8)}
+  .metric.highlight .val{color:white}
+  .tag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:500}
+  .tag-orange{background:var(--orange-bg);color:var(--orange)}
+  .list-row{display:flex;align-items:center;padding:11px 1.25rem;border-bottom:1px solid var(--border);gap:12px}
+  .list-row:last-child{border-bottom:none}
+  .rate-bar-wrap{width:120px;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+  .rate-bar{height:100%;background:var(--orange);border-radius:3px}
+  .empty-state{text-align:center;padding:3rem;color:var(--text-secondary)}
+  .empty-state .icon{font-size:48px;margin-bottom:12px}
+  .step-item{display:flex;gap:10px;margin-bottom:10px;font-size:13px;color:var(--text-secondary);align-items:flex-start}
+  .step-num{background:var(--orange);color:white;border-radius:50%;width:20px;height:20px;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .monospace{font-family:'SF Mono',Monaco,Consolas,monospace;font-size:12px;background:var(--bg-secondary);border-radius:var(--radius);padding:10px 12px;word-break:break-all;color:var(--text-secondary)}
+  .err-msg{color:#e53e3e;font-size:13px}
+  .success-badge{font-size:13px;font-weight:500;color:var(--orange)}
+  .product-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:12px}
+  .product-card:last-child{margin-bottom:0}
+  .flex-between{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid-2-1{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+  .row-flex{display:flex;gap:8px}
+  .form-label{font-size:13px;font-weight:500;color:var(--text-secondary);display:block;margin-bottom:8px}
+  .delete-btn{background:none;border:none;cursor:pointer;color:var(--text-tertiary);padding:4px 6px;font-size:16px;border-radius:var(--radius);transition:color .15s}
+  .delete-btn:hover{color:#e53e3e}
+  .info-box{background:var(--bg-secondary);border-radius:var(--radius-lg);padding:1.25rem}
+  .chart-wrap{position:relative;width:100%;height:220px}
+  footer{text-align:center;padding:2rem 0 1rem;color:var(--text-tertiary);font-size:12px}
+  @media(max-width:520px){
+    .metric-grid{grid-template-columns:1fr 1fr}
+    .grid-2{grid-template-columns:1fr}
+    .grid-2-1{grid-template-columns:1fr 1fr}
+    .tabs .tab{font-size:12px;padding:8px 10px}
+    h1{font-size:20px}
+  }
+
+  /* ── API Key Modal ── */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:999;padding:1rem}
+  .modal{background:var(--bg-card);border-radius:var(--radius-lg);padding:1.5rem;max-width:420px;width:100%;box-shadow:var(--shadow)}
+  .modal h2{font-size:18px;font-weight:600;margin-bottom:8px}
+  .modal p{font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6}
+  .modal a{color:var(--orange)}
+  .modal-actions{display:flex;gap:8px;margin-top:16px}
+</style>
+</head>
+<body>
+
+<!-- API Key Modal -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal">
+    <h2>🔑 Masukkan Anthropic API Key</h2>
+    <p>Fitur <strong>Pencari Produk AI</strong> membutuhkan API key dari Anthropic. Key Anda disimpan hanya di browser ini (localStorage) dan tidak dikirim ke server mana pun selain api.anthropic.com.<br><br>
+    Dapatkan API key gratis di <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></p>
+    <label class="form-label">Anthropic API Key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveApiKey()" style="flex:1">Simpan & Mulai</button>
+      <button class="btn" onclick="skipApiKey()" style="flex:1">Lewati (tanpa AI)</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div class="logo">🏷️</div>
+    <h1>Shopee Affiliate Tools</h1>
+  </header>
+  <p class="subtitle">Generator link · Kalkulator komisi · Pencari produk AI · Dashboard tracking</p>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('generator')">🔗 Generator Link</button>
+    <button class="tab" onclick="switchTab('calculator')">🧮 Kalkulator</button>
+    <button class="tab" onclick="switchTab('finder')">🤖 Pencari Produk AI</button>
+    <button class="tab" onclick="switchTab('dashboard')">📊 Dashboard</button>
+  </div>
+
+  <!-- ═══════════════ GENERATOR ═══════════════ -->
+  <div id="tab-generator" class="tab-content active">
+    <div class="card">
+      <label class="form-label">ID Afiliasi Shopee</label>
+      <input id="affId" placeholder="Contoh: myaffiliate123" style="margin-bottom:14px">
+      <label class="form-label">URL Produk Shopee</label>
+      <input id="shopeeUrl" placeholder="https://shopee.co.id/..." style="margin-bottom:6px"
+        oninput="document.getElementById('urlErr').style.display='none';document.getElementById('genResult').style.display='none'">
+      <p id="urlErr" class="err-msg" style="display:none;margin-bottom:10px"></p>
+      <br>
+      <button class="btn btn-primary" onclick="generateLink()">✨ Generate Link Afiliasi</button>
+    </div>
+
+    <div id="genResult" class="card card-highlight" style="display:none">
+      <div class="flex-between" style="margin-bottom:10px">
+        <span class="success-badge">✓ Link Afiliasi Siap!</span>
+        <button class="btn" id="copyBtn" onclick="copyLink()" style="padding:6px 14px;font-size:13px">📋 Salin Link</button>
+      </div>
+      <div class="monospace" id="genLinkDisplay"></div>
+      <p style="font-size:12px;color:var(--text-tertiary);margin-top:10px">💡 Bagikan di TikTok, Instagram, WhatsApp, atau blog Anda untuk mulai menghasilkan komisi.</p>
+    </div>
+
+    <div class="info-box">
+      <p style="font-size:13px;font-weight:600;margin-bottom:12px">📋 Cara Menggunakan</p>
+      <div id="genSteps"></div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <p style="font-size:12px;color:var(--text-secondary);line-height:1.7">
+          💡 <strong>Tips:</strong> ID Afiliasi dapat ditemukan di dashboard
+          <a href="https://affiliate.shopee.co.id" target="_blank" style="color:var(--orange)">affiliate.shopee.co.id</a>
+          setelah akun Anda disetujui.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CALCULATOR ═══════════════ -->
+  <div id="tab-calculator" class="tab-content">
+    <div class="card">
+      <div class="grid-2" style="margin-bottom:14px">
+        <div>
+          <label class="form-label">Harga Produk (Rp)</label>
+          <input id="price" type="number" min="0" placeholder="150000" oninput="updateCalc()">
+        </div>
+        <div>
+          <label class="form-label">Jumlah Item</label>
+          <input id="qty" type="number" min="1" value="1" oninput="updateCalc()">
+        </div>
+      </div>
+      <label class="form-label">Kategori Produk</label>
+      <select id="catSelect" onchange="updateCalc()"></select>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric"><label>Tarif Komisi</label><div class="val" id="rateDisplay">8.5%</div></div>
+      <div class="metric"><label>Total Harga</label><div class="val" id="totalDisplay">Rp0</div></div>
+      <div class="metric highlight"><label>Estimasi Komisi</label><div class="val" id="commDisplay">Rp0</div></div>
+    </div>
+
+    <div class="card">
+      <p style="font-size:13px;font-weight:600;margin-bottom:14px">📊 Tarif Komisi per Kategori</p>
+      <div id="rateList"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ AI FINDER ═══════════════ -->
+  <div id="tab-finder" class="tab-content">
+    <div class="card">
+      <label class="form-label">Deskripsikan niche atau target audiens Anda</label>
+      <input id="nicheInput" placeholder="Contoh: ibu rumah tangga, pecinta skincare, mahasiswa..."
+        style="margin-bottom:12px" onkeydown="if(event.key==='Enter')findProducts()">
+      <button class="btn btn-primary" id="findBtn" onclick="findProducts()">🤖 Temukan Produk Terlaris dengan AI</button>
+    </div>
+    <div id="finderResults">
+      <div class="empty-state">
+        <div class="icon">🛍️</div>
+        <p style="font-size:14px">Masukkan niche Anda dan biarkan AI menemukan produk terlaris di Shopee</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ DASHBOARD ═══════════════ -->
+  <div id="tab-dashboard" class="tab-content">
+    <div class="metric-grid" id="dashMetrics"></div>
+
+    <div class="card">
+      <p style="font-size:13px;font-weight:600;margin-bottom:14px">📈 Performa Minggu Ini (Contoh Data)</p>
+      <div class="chart-wrap">
+        <canvas id="salesChart" role="img" aria-label="Bar chart komisi harian dalam seminggu">
+          Komisi harian: Sen 32rb, Sel 48rb, Rab 21rb, Kam 55rb, Jum 76rb, Sab 98rb, Min 71rb.
+        </canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <p style="font-size:13px;font-weight:600;margin-bottom:12px">➕ Catat Penjualan Baru</p>
+      <div class="grid-2-1" style="margin-bottom:8px">
+        <input id="newProd" placeholder="Nama produk">
+        <input id="newPrice" type="number" placeholder="Harga (Rp)">
+        <input id="newQty" type="number" min="1" value="1" placeholder="Qty">
+      </div>
+      <div class="row-flex">
+        <select id="newCat" style="flex:1"></select>
+        <button class="btn btn-primary" onclick="addSale()" style="width:auto;padding:10px 20px">+ Tambah</button>
+      </div>
+    </div>
+
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden">
+      <div style="padding:12px 1.25rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <p style="font-size:13px;font-weight:600">Riwayat Penjualan</p>
+        <span id="totalBadge" class="tag tag-orange"></span>
+      </div>
+      <div id="salesList"></div>
+    </div>
+  </div>
+
+  <footer>Dibuat dengan ❤️ | Shopee Affiliate Tools &copy; 2025</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const CATS=[
+  {n:"Fashion & Aksesoris",r:8.5,e:"👗"},{n:"Kecantikan & Perawatan",r:9.0,e:"💄"},
+  {n:"Kesehatan",r:8.0,e:"💊"},{n:"Elektronik",r:2.5,e:"📱"},
+  {n:"Rumah & Kehidupan",r:6.0,e:"🏠"},{n:"Makanan & Minuman",r:6.0,e:"🍜"},
+  {n:"Olahraga & Outdoor",r:7.0,e:"⚽"},{n:"Mainan & Hobi",r:6.0,e:"🎮"},
+  {n:"Buku & Alat Tulis",r:5.0,e:"📚"},{n:"Otomotif",r:4.0,e:"🚗"},
+  {n:"Perlengkapan Bayi",r:7.5,e:"👶"},{n:"Lainnya",r:3.5,e:"📦"}
+];
+let sales=JSON.parse(localStorage.getItem("af_sales")||"[]");
+let chartInst=null;
+let apiKey=localStorage.getItem("anthropic_key")||"";
+let generatedLink="";
+
+// ── API Key Modal ────────────────────────────────────────────────────────────
+if(apiKey){document.getElementById("apiModal").style.display="none";}
+function saveApiKey(){
+  const v=document.getElementById("apiKeyInput").value.trim();
+  if(v){apiKey=v;localStorage.setItem("anthropic_key",v);}
+  document.getElementById("apiModal").style.display="none";
+}
+function skipApiKey(){document.getElementById("apiModal").style.display="none";}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const idr=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n);
+function saveSales(){localStorage.setItem("af_sales",JSON.stringify(sales));}
+
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+function switchTab(id){
+  document.querySelectorAll(".tab-content").forEach(el=>el.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach((btn,i)=>{
+    const ids=["generator","calculator","finder","dashboard"];
+    btn.classList.toggle("active",ids[i]===id);
+  });
+  document.getElementById("tab-"+id).classList.add("active");
+  if(id==="dashboard")renderDashboard();
+}
+
+// ── Generator ─────────────────────────────────────────────────────────────────
+document.getElementById("genSteps").innerHTML=
+  ["Masukkan ID Afiliasi dari dashboard Shopee Affiliate Anda",
+   "Paste URL produk Shopee yang ingin dipromosikan",
+   "Klik Generate dan salin link afiliasi yang dihasilkan",
+   "Bagikan di TikTok, Instagram, WhatsApp, atau konten Anda"]
+  .map((s,i)=>`<div class="step-item"><span class="step-num">${i+1}</span>${s}</div>`).join("");
+
+function generateLink(){
+  const affId=document.getElementById("affId").value.trim();
+  const url=document.getElementById("shopeeUrl").value.trim();
+  const err=document.getElementById("urlErr");
+  if(!affId){err.textContent="⚠️ Masukkan ID Afiliasi Anda";err.style.display="block";return;}
+  if(!url){err.textContent="⚠️ Masukkan URL produk Shopee";err.style.display="block";return;}
+  if(!url.toLowerCase().includes("shopee")){err.textContent="⚠️ URL tidak valid — harus dari Shopee";err.style.display="block";return;}
+  err.style.display="none";
+  generatedLink=url.split("?")[0]+`?af_id=${affId}&smtt=0&smtt=0`;
+  document.getElementById("genLinkDisplay").textContent=generatedLink;
+  document.getElementById("genResult").style.display="block";
+}
+function copyLink(){
+  navigator.clipboard.writeText(generatedLink).catch(()=>{
+    const t=document.createElement("textarea");t.value=generatedLink;document.body.appendChild(t);t.select();document.execCommand("copy");document.body.removeChild(t);
+  });
+  const btn=document.getElementById("copyBtn");
+  btn.textContent="✓ Tersalin!";
+  setTimeout(()=>{btn.textContent="📋 Salin Link";},2000);
+}
+
+// ── Calculator ────────────────────────────────────────────────────────────────
+const catSel=document.getElementById("catSelect");
+CATS.forEach(c=>{const o=document.createElement("option");o.value=c.n;o.textContent=`${c.e} ${c.n} (${c.r}%)`;catSel.appendChild(o);});
+document.getElementById("rateList").innerHTML=CATS.map(c=>`
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+    <span style="font-size:15px;width:20px">${c.e}</span>
+    <span style="font-size:13px;color:var(--text-secondary);flex:1">${c.n}</span>
+    <div class="rate-bar-wrap"><div class="rate-bar" style="width:${(c.r/10)*100}%"></div></div>
+    <span style="font-size:13px;font-weight:600;min-width:38px;text-align:right">${c.r}%</span>
+  </div>`).join("");
+
+function updateCalc(){
+  const p=parseFloat(document.getElementById("price").value)||0;
+  const q=parseInt(document.getElementById("qty").value)||1;
+  const cat=CATS.find(c=>c.n===document.getElementById("catSelect").value)||CATS[0];
+  document.getElementById("rateDisplay").textContent=`${cat.r}%`;
+  document.getElementById("totalDisplay").textContent=idr(p*q);
+  document.getElementById("commDisplay").textContent=idr(Math.round(p*q*(cat.r/100)));
+}
+
+// ── AI Product Finder ─────────────────────────────────────────────────────────
+async function findProducts(){
+  if(!apiKey){
+    document.getElementById("apiModal").style.display="flex";
+    return;
+  }
+  const niche=document.getElementById("nicheInput").value.trim();
+  if(!niche)return;
+  const btn=document.getElementById("findBtn");
+  btn.disabled=true;btn.textContent="🔍 Mencari produk terbaik...";
+  document.getElementById("finderResults").innerHTML=`
+    <div class="empty-state">
+      <div class="icon" style="font-size:36px">⏳</div>
+      <p style="font-size:14px">AI sedang menganalisis produk terlaris untuk niche "<strong>${niche}</strong>"...</p>
+    </div>`;
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        messages:[{role:"user",content:`Kamu adalah pakar Shopee affiliate marketing Indonesia. Berikan 5 rekomendasi produk terlaris di Shopee untuk niche: "${niche}".\n\nRespond ONLY with valid JSON array (no markdown, no preamble, no code blocks):\n[{"product":"nama produk","category":"kategori shopee","priceRange":"kisaran harga (contoh: Rp50.000 - Rp150.000)","commissionRate":8.5,"reason":"alasan singkat max 20 kata","tips":"tips promosi max 15 kata"}]`}]
+      })
+    });
+    const data=await res.json();
+    if(data.error){throw new Error(data.error.message);}
+    const text=data.content.filter(b=>b.type==="text").map(b=>b.text).join("");
+    const clean=text.replace(/```json|```/g,"").trim();
+    const products=JSON.parse(clean);
+    document.getElementById("finderResults").innerHTML=products.map(p=>`
+      <div class="product-card">
+        <div class="flex-between" style="margin-bottom:8px">
+          <div>
+            <p style="font-size:14px;font-weight:600;margin-bottom:2px">${p.product}</p>
+            <p style="font-size:12px;color:var(--text-secondary)">${p.category}</p>
+          </div>
+          <span class="tag tag-orange">${p.commissionRate}% komisi</span>
+        </div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:5px">💰 ${p.priceRange}</p>
+        <p style="font-size:13px;margin-bottom:5px">✨ ${p.reason}</p>
+        <p style="font-size:12px;color:var(--text-tertiary)">💡 Tips: ${p.tips}</p>
+      </div>`).join("");
+  }catch(e){
+    document.getElementById("finderResults").innerHTML=`
+      <div class="card" style="border-color:#e53e3e">
+        <p style="color:#e53e3e;font-size:14px">⚠️ ${e.message||"Gagal memuat rekomendasi. Periksa API key Anda dan coba lagi."}</p>
+        <button class="btn" onclick="document.getElementById('apiModal').style.display='flex'" style="margin-top:10px;font-size:13px">🔑 Ubah API Key</button>
+      </div>`;
+  }
+  btn.disabled=false;btn.textContent="🤖 Temukan Produk Terlaris dengan AI";
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function renderDashboard(){
+  const total=sales.reduce((s,x)=>s+x.commission,0);
+  const totalItems=sales.reduce((s,x)=>s+x.qty,0);
+  const avg=sales.length?total/sales.length:0;
+  document.getElementById("dashMetrics").innerHTML=[
+    {l:"Total Komisi",v:idr(total)},{l:"Produk Terjual",v:`${totalItems} item`},{l:"Rata-rata/Penjualan",v:idr(Math.round(avg))}
+  ].map(m=>`<div class="metric"><label>${m.l}</label><div class="val">${m.v}</div></div>`).join("");
+
+  const ctx=document.getElementById("salesChart");
+  if(chartInst){chartInst.destroy();}
+  chartInst=new Chart(ctx,{
+    type:"bar",
+    data:{labels:["Sen","Sel","Rab","Kam","Jum","Sab","Min"],datasets:[{label:"Komisi (Rp)",data:[32000,48000,21000,55000,76000,98000,71000],backgroundColor:"#EE4D2D",borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>[idr(v.raw)]}}},scales:{x:{grid:{display:false},ticks:{font:{size:12}}},y:{grid:{color:"rgba(128,128,128,0.08)"},border:{display:false},ticks:{callback:v=>`${(v/1000).toFixed(0)}k`}}}}
+  });
+
+  const newCat=document.getElementById("newCat");
+  if(newCat.options.length===0){CATS.forEach(c=>{const o=document.createElement("option");o.value=c.n;o.textContent=c.n;newCat.appendChild(o);});}
+  renderSalesList();
+}
+
+function addSale(){
+  const product=document.getElementById("newProd").value.trim();
+  const price=parseFloat(document.getElementById("newPrice").value);
+  const qty=parseInt(document.getElementById("newQty").value)||1;
+  const category=document.getElementById("newCat").value;
+  if(!product||!price)return;
+  const cat=CATS.find(c=>c.n===category)||CATS[0];
+  sales.push({id:Date.now(),product,category,price,qty,commission:Math.round(price*qty*(cat.r/100))});
+  saveSales();
+  document.getElementById("newProd").value="";document.getElementById("newPrice").value="";document.getElementById("newQty").value="1";
+  updateDashMetrics();renderSalesList();
+}
+function deleteSale(id){sales=sales.filter(s=>s.id!==id);saveSales();updateDashMetrics();renderSalesList();}
+function updateDashMetrics(){
+  const total=sales.reduce((s,x)=>s+x.commission,0);
+  const totalItems=sales.reduce((s,x)=>s+x.qty,0);
+  const avg=sales.length?total/sales.length:0;
+  document.getElementById("dashMetrics").innerHTML=[
+    {l:"Total Komisi",v:idr(total)},{l:"Produk Terjual",v:`${totalItems} item`},{l:"Rata-rata/Penjualan",v:idr(Math.round(avg))}
+  ].map(m=>`<div class="metric"><label>${m.l}</label><div class="val">${m.v}</div></div>`).join("");
+}
+function renderSalesList(){
+  const total=sales.reduce((s,x)=>s+x.commission,0);
+  document.getElementById("totalBadge").textContent=`Total: ${idr(total)}`;
+  document.getElementById("salesList").innerHTML=sales.length
+    ?[...sales].reverse().map(s=>`
+      <div class="list-row">
+        <div style="flex:1">
+          <p style="font-size:13px;font-weight:500;margin-bottom:2px">${s.product}</p>
+          <p style="font-size:12px;color:var(--text-secondary)">${s.category} · ${s.qty}× ${idr(s.price)}</p>
+        </div>
+        <span style="font-size:13px;font-weight:600;color:var(--orange)">${idr(s.commission)}</span>
+        <button class="delete-btn" onclick="deleteSale(${s.id})" title="Hapus">🗑️</button>
+      </div>`).join("")
+    :`<div style="padding:2rem;text-align:center;color:var(--text-tertiary);font-size:13px">Belum ada penjualan. Tambahkan penjualan pertama Anda!</div>`;
+}
+</script>
+</body>
+</html>
